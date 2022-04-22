@@ -2,7 +2,7 @@
 /* Copyright 2022, Intel Corporation */
 
 /*
- * mover.h -- implementation of default datamover
+ * mover.h -- implementation of default datamover and pmem2 futures
  */
 #ifndef PMEM2_MOVER_H
 #define PMEM2_MOVER_H
@@ -11,6 +11,7 @@
 #include "libminiasync/vdm.h"
 
 int mover_new(struct pmem2_map *map, struct vdm **vdm);
+
 void mover_delete(struct vdm *vdm);
 
 #endif /* PMEM2_MOVER_H */
