@@ -290,6 +290,7 @@ struct pmem2_persist_future_data {
 };
 
 struct pmem2_persist_future_output {
+	void *output;
 };
 
 /*
