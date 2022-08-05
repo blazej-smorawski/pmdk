@@ -447,6 +447,9 @@ pmemblk_read_async_impl(struct future_context *ctx,
 	long long blockno = data->blockno;
 	int *stage = &data->stage;
 
+	/*
+	 * Both ...INITIALIZED and ...WAITING_FOR_LANE go here
+	 */
 	if (*stage <= PMEMBLK_READ_WAITING_FOR_LANE) {
 		if (lane_try_enter(pbp, &data->internal.lane) == -1) {
 			*stage = PMEMBLK_READ_WAITING_FOR_LANE;
@@ -815,7 +818,9 @@ pmemblk_xcreateU(const char *path, size_t bsize, size_t poolsize, mode_t mode,
 	 * vdm is NULL.
 	 */
 	LOG(3, "vdm %p", vdm);
-	pbp->vdm = vdm ? vdm : NULL;
+
+	if(pbp != NULL)
+		pbp->vdm = vdm ? vdm : NULL;
 
 	return pbp;
 }
@@ -978,7 +983,8 @@ pmemblk_xopenU(const char *path, size_t bsize, struct vdm *vdm)
 	 * vdm is NULL.
 	 */
 	LOG(3, "vdm %p", vdm);
-	pbp->vdm = vdm ? vdm : NULL;
+	if(pbp != NULL)
+		pbp->vdm = vdm ? vdm : NULL;
 
 	return pbp;
 }
