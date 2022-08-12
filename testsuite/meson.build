@@ -215,8 +215,9 @@ run_tests_powershell_target = run_target(
     env:run_tests_env+run_tests_powershell_env,
 )
 
+# Before running 
+run_tests_targets = [copy_test_files_target]
 # If test case was specified we run only one framework
-run_tests_targets = []
 if tests_case != ''
     if fs.exists(meson.project_build_root() / 'src/test' / tests_case / 'TESTS.py')
         # Selected case is using python
