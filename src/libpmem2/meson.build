@@ -108,17 +108,12 @@ sources = files(
     'deep_flush.c',
     'errormsg.c',
     'map.c',
-    'map_posix.c',
-    'mcsafe_ops_posix.c',
     'memops_generic.c',
     'mover.c',
     'persist.c',
-    'persist_posix.c',
     'pmem2_utils.c',
     'source.c',
-    'source_posix.c',
-    'vm_reservation.c',
-    'vm_reservation_posix.c'
+    'vm_reservation.c'
 )
 
 if host_machine.system() == 'linux'
@@ -126,37 +121,56 @@ if host_machine.system() == 'linux'
         'auto_flush_linux.c',
         'deep_flush_linux.c',
         'extent_linux.c',
-        'pmem2_utils_linux.c'
+        'map_posix.c',
+        'mcsafe_ops_posix.c',
+        'persist_posix.c',
+        'pmem2_utils_linux.c',
+        'source_posix.c',
+        'vm_reservation_posix.c'
     )
 
     if libndctl_dep.found()
-        sources += files('pmem2_utils_ndctl.c')
+        sources += files(
+            'badblocks_ndctl.c',
+            'numa_ndctl.c',
+            'pmem2_utils_ndctl.c',
+            'region_namespace_ndctl.c',
+            'usc_ndctl.c'
+        )
     else
-        sources += files('pmem2_utils_none.c')
+        sources += files(
+            'badblocks_none.c',
+            'numa_none.c',
+            'pmem2_utils_none.c',
+            'region_namespace_none.c',
+            'usc_none.c'
+        )
     endif
-else
+elif host_machine.system() == 'windows'
     sources += files(
         'auto_flush_none.c',
-        'deep_flush_none.c',
+        'badblocks_none.c',
+        'deep_flush_other.c',
         'extent_none.c',
-        'pmem2_utils_other.c'
+        'map_windows.c',
+        'mcsafe_ops_windows.c',
+        'numa_none.c',
+        'persist_windows.c',
+        'pmem2_utils_other.c',
+        'region_namespace_none.c',
+        'source_windows.c',
+        'usc_windows.c',
+        'vm_reservation_windows.c',
     )
 endif
 
-if libndctl_dep.found()
-    sources += files(
-        'badblocks_ndctl.c',
-        'region_namespace_ndctl.c',
-        'numa_ndctl.c',
-        'usc_ndctl.c'
-    )
-else
-    sources += files(
-        'badblocks_none.c',
-        'region_namespace_none.c',
-        'numa_none.c',
-        'usc_none.c'
-    )
+link_args = []
+
+if host_machine.system() == 'linux'
+    link_args += '-Wl,--version-script=@0@'.format(meson.current_source_dir() / 'libpmem2.link.in')
+elif host_machine.system() == 'windows'
+    link_args += '-DEF:@0@'.format(meson.current_source_dir() / 'libpmem2.def')
+    link_args += ['shlwapi.lib', 'ntdll.lib', 'mincore.lib', 'kernel32.lib', 'user32.lib', 'gdi32.lib', 'winspool.lib', 'comdlg32.lib', 'advapi32.lib', 'shell32.lib', 'ole32.lib', 'oleaut32.lib', 'uuid.lib', 'odbc32.lib', 'odbccp32.lib']
 endif
 
 libpmem2 = library(
@@ -165,13 +179,10 @@ libpmem2 = library(
     c_args: [
         '-DPMEM2_USE_MINIASYNC',
     ],
-    link_args: [
-        '-Wl,--version-script=@0@'.format(meson.current_source_dir() / 'libpmem2.link.in'),
-    ],
+    link_args: link_args,
     dependencies: [
         libndctl_dep,
         libdaxctl_dep,
-        # pmemcommon_dep,
         pmemcore_dep,
         pmem2arch_dep,
         threads_dep,
@@ -181,8 +192,7 @@ libpmem2 = library(
         common_include,
         miniasync_include,
     ],
-    soversion: '1',
-    version: '1.0.0',
+    name_prefix: 'lib',
     install: true
 )
 

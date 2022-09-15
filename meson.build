@@ -44,21 +44,21 @@ add_project_arguments(cc.get_supported_arguments(flags), language: 'c')
 
 fs = import('fs')
 
-libdl_dep = cc.find_library('dl')
-libm_dep = cc.find_library('m')
+libdl_dep = cc.find_library('dl', required: false)
+libm_dep = cc.find_library('m', required:false)
 
 threads_dep = dependency('threads')
 # TODO: Add wrap (autotools)
 libndctl_dep = dependency('libndctl', version: '>= 63', required: get_option('ndctl'))
 libdaxctl_dep = dependency('libdaxctl', version: '>= 63', required: get_option('ndctl'))
-libfabric_dep = dependency('libfabric', version: '>= 1.4.2') # TODO: is it necessary?
+libfabric_dep = dependency('libfabric', version: '>= 1.4.2', required: false) # TODO: is it necessary?
 libncurses_dep = dependency('ncurses', required: false)
 libuv_dep = dependency('libuv', required: false)
 libfuse_dep = dependency('fuse', version: '>= 2.9.1', required: false)
 
 miniasync_proj = cmake.subproject('miniasync')
 miniasync_dep = miniasync_proj.dependency('miniasync')
-miniasync_include = miniasync_proj.include_directories('miniasync')
+miniasync_include = include_directories('subprojects/miniasync/src/include')
 
 if libndctl_dep.found()
     add_project_arguments(

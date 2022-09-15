@@ -14,46 +14,55 @@ sources = files(
     'pool.c',
     'replica.c',
     'feature.c',
-    '../rpmem_common/rpmem_common.c',
-    '../librpmem/rpmem_ssh.c',
-    '../librpmem/rpmem_cmd.c',
-    '../librpmem/rpmem_util.c',
     'sync.c',
     'transform.c',
     'rm.c'
 )
 
-libpmempool = library(
-    'pmempool',
-    sources,
-    objects: libpmemblk.extract_objects('btt.c'),
-    c_args: [
-        '-DUSE_LIBDL',
-        '-DUSE_RPMEM',
-    ],
-    link_args: [
-        '-Wl,--version-script=@0@'.format(meson.current_source_dir() / 'libpmempool.link.in'),
-    ],
-    dependencies: [
+link_args = []
+
+if host_machine.system() == 'linux'
+    link_args += '-Wl,--version-script=@0@'.format(meson.current_source_dir() / 'libpmempool.link.in')
+elif host_machine.system() == 'windows'
+    link_args += '-DEF:@0@'.format(meson.current_source_dir() / 'libpmempool.def')
+    link_args += ['shlwapi.lib', 'ntdll.lib', 'mincore.lib', 'kernel32.lib', 'user32.lib', 'gdi32.lib', 'winspool.lib', 'comdlg32.lib', 'advapi32.lib', 'shell32.lib', 'ole32.lib', 'oleaut32.lib', 'uuid.lib', 'odbc32.lib', 'odbccp32.lib']
+endif
+
+dependencies = [
         libdaxctl_dep,
-        libdl_dep,
         libndctl_dep,
         libpmem_dep,
         pmemcommon_dep,
         pmemcore_dep,
         threads_dep,
-    ],
+    ]
+    
+if host_machine.system() == 'linux'
+    dependencies += libdl_dep
+endif
+
+c_args = []
+
+if host_machine.system() == 'linux'
+    c_args += '-DUSE_LIBDL'
+endif
+
+libpmempool = library(
+    'pmempool',
+    sources,
+    objects: libpmemblk.extract_objects('btt.c'),
+    c_args: c_args,
+    link_args: link_args,
+    dependencies: dependencies,
     include_directories: [
-        root_include,
         include_directories('../libpmemlog'),
         include_directories('../libpmemblk'),
         include_directories('../libpmemobj'),
-        include_directories('../rpmem_common'),
-        include_directories('../librpmem'),
         include_directories('../libpmem2'),
+        root_include,
+        windows_include,
     ],
-    soversion: '1',
-    version: '1.0.0',
+    name_prefix: 'lib',
     install: true
 )
 
@@ -64,22 +73,13 @@ libpmempool_dep = declare_dependency(
 
 libpmempool_internal_dep = declare_dependency(
     sources: sources,
-    compile_args: [
-        '-DUSE_LIBDL',
-        '-DUSE_RPMEM',
-    ],
-    dependencies: [
-        libdaxctl_dep,
-        libdl_dep,
-        libndctl_dep,
-        libpmem_dep,
-        pmemcommon_dep,
-        pmemcore_dep,
-        threads_dep,
-    ],
+    compile_args: c_args,
+    dependencies: dependencies,
     include_directories: [
         include_directories('.'),
+        include_directories('../windows/include'),
         root_include,
+        windows_include,
     ],
 )
 

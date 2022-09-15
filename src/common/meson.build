@@ -7,10 +7,7 @@ sources = files(
     'ctl_fallocate.c',
     'ctl_cow.c',
     'file.c',
-    'file_posix.c',
     'mmap.c',
-    'mmap_posix.c',
-    'os_deep_linux.c',
     'pool_hdr.c',
     'rand.c',
     'set.c',
@@ -19,39 +16,58 @@ sources = files(
     'uuid_@0@.c'.format(host_machine.system()),
     '../libpmem2/pmem2_utils.c',
     '../libpmem2/config.c',
-    '../libpmem2/persist_posix.c',
     '../libpmem2/badblocks.c',
     '../libpmem2/source.c',
-    '../libpmem2/source_posix.c',
     '../libpmem2/memops_generic.c',
-    '../libpmem/pmem.c',
 )
 
 if host_machine.system() == 'linux'
     sources += files(
+        'file_posix.c',
+        'mmap_posix.c',
+        'os_deep_linux.c',
         '../libpmem2/auto_flush_linux.c',
         '../libpmem2/deep_flush_linux.c',
         '../libpmem2/extent_linux.c',
+        '../libpmem2/persist_posix.c',
         '../libpmem2/pmem2_utils_linux.c',
-	'../libpmem/pmem_posix.c',
+	    '../libpmem/pmem_posix.c',
+        '../libpmem2/source_posix.c',
     )
 
     if libndctl_dep.found()
         sources += files(
-            '../libpmem2/pmem2_utils_ndctl.c'
+            '../libpmem2/pmem2_utils_ndctl.c',
+            '../libpmem2/badblocks_ndctl.c',
+            '../libpmem2/usc_ndctl.c',
+            '../libpmem2/region_namespace_ndctl.c',
+            '../libpmem2/numa_ndctl.c',
         )
     else
         sources += files(
-            '../libpmem2/pmem2_utils_none.c'
+            '../libpmem2/pmem2_utils_none.c',
+            '../libpmem2/badblocks_none.c',
+            '../libpmem2/usc_none.c',
+            '../libpmem2/region_namespace_none.c',
+            '../libpmem2/numa_none.c',
         )
     endif
-else
+elif host_machine.system() == 'windows'
     sources += files(
+        'file_windows.c',
+        'mmap_windows.c',
+        'os_deep_windows.c',
         '../libpmem2/auto_flush_none.c',
         '../libpmem2/deep_flush_other.c',
-        '../libpmem2/extent_other.c',
+        '../libpmem2/extent_none.c',
+        '../libpmem2/persist_windows.c',
         '../libpmem2/pmem2_utils_other.c',
-	'../libpmem/pmem_windows.c',
+	    '../libpmem/pmem_windows.c',
+        '../libpmem2/source_windows.c',
+        '../libpmem2/badblocks_none.c',
+        '../libpmem2/usc_windows.c',
+        '../libpmem2/region_namespace_none.c',
+        '../libpmem2/numa_none.c'
     )
 endif
 
@@ -62,24 +78,18 @@ dependencies = [
 ]
 
 if libndctl_dep.found()
-    sources += files(
-        '../libpmem2/badblocks_ndctl.c',
-        '../libpmem2/usc_ndctl.c',
-        '../libpmem2/region_namespace_ndctl.c',
-        '../libpmem2/numa_ndctl.c'
-    )
-
     dependencies += [
-	libdaxctl_dep,
-	libndctl_dep,
+	    libdaxctl_dep,
+	    libndctl_dep,
     ]
-else
-    sources += files(
-        '../libpmem2/badblocks_none.c',
-        '../libpmem2/usc_none.c',
-        '../libpmem2/region_namespace_none.c',
-        '../libpmem2/numa_none.c'
-    )
+endif
+
+include_directories = [
+    include_directories('.'),
+]
+
+if host_machine.system() == 'windows'
+    include_directories += windows_include
 endif
 
 libpmemcommon = static_library(
@@ -94,8 +104,9 @@ libpmemcommon = static_library(
         include_directories('.'),
 	include_directories('../libpmem'),
         include_directories('../libpmem2'),
-	root_include,
-	miniasync_include,
+        include_directories,
+	    root_include,
+	    miniasync_include,
     ],
     install: false,
 )
@@ -103,6 +114,6 @@ libpmemcommon = static_library(
 pmemcommon_dep = declare_dependency(
     link_with: libpmemcommon,
     include_directories: [
-        include_directories('.'),
+        include_directories
     ],
 )
