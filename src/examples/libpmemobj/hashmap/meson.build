@@ -4,6 +4,7 @@ libhashmap_atomic = static_library(
     dependencies: [libpmemobj_dep],
     include_directories: include_directories('.'),
     install: false,
+    c_args: cpp_args,
 )
 
 libhashmap_atomic_dep = declare_dependency(
@@ -17,6 +18,7 @@ libhashmap_tx = static_library(
     dependencies: [libpmemobj_dep],
     include_directories: include_directories('.'),
     install: false,
+    c_args: cpp_args,
 )
 
 libhashmap_tx_dep = declare_dependency(
@@ -30,6 +32,7 @@ libhashmap_rp = static_library(
     dependencies: [libpmemobj_dep],
     include_directories: include_directories('.'),
     install: false,
+    c_args: cpp_args,
 )
 
 libhashmap_rp_dep = declare_dependency(

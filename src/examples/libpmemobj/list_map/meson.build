@@ -4,6 +4,7 @@ libskiplist_map = static_library(
     dependencies: [libpmemobj_dep],
     include_directories: include_directories('.'),
     install: false,
+    c_args: cpp_args,
 )
 
 libskiplist_map_dep = declare_dependency(

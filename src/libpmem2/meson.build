@@ -22,6 +22,16 @@ elif host_machine.cpu_family() == 'x86_64'
         'x86_64/memset/memset_t_sse2.c',
     )
 
+    if host_machine.system() == 'windows'
+        avx512f_args = ['-arch:AVX512']
+        avx_args = ['-arch:AVX']
+        movdir64b_args = []
+    else
+        avx512f_args = ['-mavx512f']
+        avx_args = ['-mavx']
+        movdir64b_args = ['-mmovdir64b']
+    endif
+
     test_avx512f = cc.run(
         '''
         #include <immintrin.h>
@@ -34,7 +44,7 @@ elif host_machine.cpu_family() == 'x86_64'
             return 0;
         }
         ''',
-        args: ['-mavx512f'],
+        args: avx512f_args,
         name: 'avx512f support'
     )
     if test_avx512f.compiled() and test_avx512f.returncode() == 0
@@ -46,10 +56,7 @@ elif host_machine.cpu_family() == 'x86_64'
             'x86_64/memset/memset_t_avx512f.c',
         )
 
-        compile_args += [
-            '-DAVX512F_AVAILABLE=1',
-            '-mavx512f',
-        ]
+        compile_args += ['-DAVX512F_AVAILABLE=1'] + avx512f_args
         pmem2_use_avx512f = 1
     else
         compile_args += '-DAVX512F_AVAILABLE=0'
@@ -67,7 +74,7 @@ elif host_machine.cpu_family() == 'x86_64'
             return 0;
         }
         ''',
-        args: ['-mmovdir64b'],
+        args: movdir64b_args,
         name: 'movdir64b support'
     )
     if test_movdir64b.compiled() and test_movdir64b.returncode() == 0
@@ -77,10 +84,7 @@ elif host_machine.cpu_family() == 'x86_64'
             'x86_64/memset/memset_nt_movdir64b.c',
         )
 
-        compile_args += [
-            '-DMOVDIR64B_AVAILABLE=1',
-            '-mmovdir64b',
-        ]
+        compile_args += ['-DMOVDIR64B_AVAILABLE=1'] + movdir64b_args
         pmem2_use_movdir64b = 1
     else
         compile_args += '-DMOVDIR64B_AVAILABLE=0'
@@ -89,7 +93,7 @@ elif host_machine.cpu_family() == 'x86_64'
 
     includes += include_directories('x86_64/memcpy', 'x86_64/memset')
 
-    compile_args += '-mavx'
+    compile_args += avx_args
 else
     error('pmdk does not support @0@'.format(host_machine.cpu_family()))
 endif

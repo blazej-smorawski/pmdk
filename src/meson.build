@@ -20,14 +20,18 @@ subdir('libpmemlog')
 subdir('libpmemobj')
 subdir('libpmempool')
 subdir('libpmemset')
-#subdir('examples')
+subdir('examples')
+
+if host_machine.system() == 'windows'
+    subdir('windows')
+endif
 
 if get_option('rpmem')
     #subdir('librpmem')
 endif
 
 if get_option('tools')
-    #subdir('tools')
+    subdir('tools')
 endif
 
 if get_option('tests') or get_option('tests-case')!=''

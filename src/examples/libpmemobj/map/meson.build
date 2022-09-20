@@ -1,9 +1,10 @@
-libmap_ctree = library(
+libmap_ctree = static_library(
     'map_ctree',
     files('map_ctree.c', 'map.c'),
     dependencies: [libctree_map_dep, libpmemobj_dep, threads_dep],
     include_directories: include_directories('.'),
     install: false,
+    c_args: cpp_args,
 )
 
 libmap_ctree_dep = declare_dependency(
@@ -14,19 +15,20 @@ libmap_ctree_dep = declare_dependency(
 libmap = static_library(
     'map',
     files(
-	'map.c',
-	'map_ctree.c',
-	'map_btree.c',
-	'map_rtree.c',
-	'map_rbtree.c',
-	'map_skiplist.c',
-	'map_hashmap_atomic.c',
-	'map_hashmap_tx.c',
-	'map_hashmap_rp.c',
+        'map.c',
+        'map_ctree.c',
+        'map_btree.c',
+        'map_rtree.c',
+        'map_rbtree.c',
+        'map_skiplist.c',
+        'map_hashmap_atomic.c',
+        'map_hashmap_tx.c',
+        'map_hashmap_rp.c',
     ),
     dependencies: [
         libpmemobj_dep,
-	libctree_map_dep,
+        threads_dep,
+        libctree_map_dep,
         libbtree_map_dep,
         librtree_map_dep,
         librbtree_map_dep,
@@ -37,6 +39,7 @@ libmap = static_library(
     ],
     include_directories: include_directories,
     install: false,
+    c_args: cpp_args,
 )
 
 libmap_dep = declare_dependency(
@@ -67,5 +70,5 @@ if libuv_dep.found()
     )
 else
     message('''Skipping kv_server because libuv library is missing.
-See src/examples/libpmemobj/map/README for details.''')
+            See src/examples/libpmemobj/map/README for details.''')
 endif

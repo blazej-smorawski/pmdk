@@ -6,8 +6,8 @@ project(
     default_options: [
         'buildtype=debugoptimized',
         'c_std=gnu99',
-	'b_lto=false',
-	'buildtype=debug',
+	    'b_lto=false',
+	    'buildtype=debug',
     ],
 )
 
@@ -25,7 +25,9 @@ add_project_arguments(
     language: 'c'
 )
 
-if get_option('debug')
+# The include can be found inside src/windows/include/platform.h header
+# for windows build
+if get_option('debug') and host_machine.system() != 'windows'
     add_project_arguments('-DDEBUG', language: 'c')
 endif
 
@@ -93,6 +95,6 @@ endif
 
 subdir('src')
 
-if get_option('tests') or get_option('tests-case')!=''
+if get_option('tests')
     subdir('testsuite')
 endif

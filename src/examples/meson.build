@@ -6,5 +6,8 @@ subdir('libpmemlog')
 subdir('libpmemobj')
 subdir('libpmem2')
 subdir('libpmemset')
-subdir('libpmempool')
-subdir('pmreorder')
+
+if host_machine.system() != 'windows'
+    subdir('libpmempool')
+    subdir('pmreorder')
+endif

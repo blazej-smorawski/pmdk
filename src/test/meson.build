@@ -272,21 +272,21 @@ tests = {
     'pmreorder_flushes': {},
     'pmreorder_simple': {},
     'pmreorder_stack': {},
-    'remote_basic': {},
-    'remote_obj_basic': {},
-    'rpmem_addr': {},
-    'rpmem_addr_ext': {},
-    'rpmem_basic': {},
-    'rpmem_fip': {},
-    'rpmem_obc': {},
-    'rpmem_obc_int': {},
-    'rpmem_proto': {},
-    'rpmemd_config': {},
-    'rpmemd_db': {},
-    'rpmemd_dbg': {},
-    'rpmemd_log': {},
-    'rpmemd_obc': {},
-    'rpmemd_util': {},
+    #'remote_basic': {},
+    #'remote_obj_basic': {},
+    #'rpmem_addr': {},
+    #'rpmem_addr_ext': {},
+    #'rpmem_basic': {},
+    #'rpmem_fip': {},
+    #'rpmem_obc': {},
+    #'rpmem_obc_int': {},
+    #'rpmem_proto': {},
+    #'rpmemd_config': {},
+    #'rpmemd_db': {},
+    #'rpmemd_dbg': {},
+    #'rpmemd_log': {},
+    #'rpmemd_obc': {},
+    #'rpmemd_util': {},
     'scope': {},
     'set_funcs': {},
     'signal_handle': {
@@ -296,7 +296,9 @@ tests = {
     'traces_custom_function': {},
     'traces_pmem': {},
     'unicode_api': {},
-    'unicode_match_script': {},
+    'unicode_match_script': {
+        'properties': [ 'unix_only' ],
+    },
     'util_badblock': {},
     'util_cpuid': {},
     'util_ctl': {},
@@ -335,6 +337,11 @@ tests = {
     },
 }
 
+if host_machine.system() == 'windows'
+
+else
+    tests += 
+endif
 unittest_sources = files(
     '../../testsuite/unittest/ut_alloc.c',
     '../../testsuite/unittest/ut_backtrace.c',
@@ -410,11 +417,11 @@ unittest_pmem2_lib = library(
         pmemcore_dep,
         pmemcommon_dep,
         unittest_dep,
+        miniasync_dep,
     ],
     include_directories: [
         include_directories('../../testsuite/unittest'),
         include_directories('../libpmem2'),
-        miniasync_include,
         root_include,
     ],
     install: false,
@@ -461,6 +468,10 @@ foreach t, attrs : tests
         continue # filter 'windows_only' test cases on platforms different than windows
     endif
 
+    if properties.contains('unix_only') and host_machine.system() == 'windows'
+        continue # filter 'unix_only' test cases on windows
+    endif
+
     filtered_tests += {t: attrs}
 endforeach
 
@@ -492,8 +503,10 @@ foreach t, attrs : filtered_tests
     # Get list of files needed by the test
     list_files_result = run_command(
         list_files,
-        '--regex='+test_files_regex,
-        '--dir=./'+t,
+        '--regex',
+        test_files_regex,
+        '--dir', 
+        './'+t,
         check: true,
     )
     test_files = list_files_result.stdout().strip().split('\n')

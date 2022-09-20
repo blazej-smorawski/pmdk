@@ -4,6 +4,7 @@ libctree_map = static_library(
     dependencies: [libpmemobj_dep],
     include_directories: include_directories,
     install: false,
+    c_args: cpp_args,
 )
 
 libctree_map_dep = declare_dependency(
@@ -17,6 +18,7 @@ libbtree_map = static_library(
     dependencies: [libpmemobj_dep],
     include_directories: include_directories,
     install: false,
+    c_args: cpp_args,
 )
 
 libbtree_map_dep = declare_dependency(
@@ -30,6 +32,7 @@ librtree_map = static_library(
     dependencies: [libpmemobj_dep],
     include_directories: include_directories,
     install: false,
+    c_args: cpp_args,
 )
 
 librtree_map_dep = declare_dependency(
@@ -43,6 +46,7 @@ librbtree_map = static_library(
     dependencies: [libpmemobj_dep],
     include_directories: include_directories,
     install: false,
+    c_args: cpp_args,
 )
 
 librbtree_map_dep = declare_dependency(
