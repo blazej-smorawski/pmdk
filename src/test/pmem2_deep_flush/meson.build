@@ -16,13 +16,13 @@ dependencies = [
     pmemcore_dep,
     unittest_pmem2_dep,
     unittest_dep,
+    miniasync_dep,
 ]
 
 c_args = []
 link_args = []
 include_directories = [
     include_directories('../../libpmem2'),
-    miniasync_include,
 ]
 
 # scan test source files for mock functions

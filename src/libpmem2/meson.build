@@ -181,16 +181,16 @@ libpmem2 = library(
     ],
     link_args: link_args,
     dependencies: [
-        libndctl_dep,
         libdaxctl_dep,
-        pmemcore_dep,
+        libndctl_dep,
+        miniasync_dep,
         pmem2arch_dep,
+        pmemcore_dep,
         threads_dep,
     ],
     include_directories: [
         root_include,
         common_include,
-        miniasync_include,
     ],
     name_prefix: 'lib',
     install: true
@@ -212,12 +212,12 @@ libpmem2_internal_dep = declare_dependency(
         pmemcore_dep,
         pmem2arch_dep,
         threads_dep,
+        miniasync_dep,
     ],
     include_directories: [
         include_directories('.'),
         root_include,
         common_include,
-        miniasync_include,
     ],
 )
 

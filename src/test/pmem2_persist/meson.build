@@ -3,14 +3,15 @@ sources = files(
 )
 
 dependencies = [
-    unittest_pmem2_dep,
-    libpmem2_dep,
-    libndctl_dep,
     libdaxctl_dep,
+    libndctl_dep,
     libpmem_dep,
+    libpmem2_dep,
+    miniasync_dep,
     pmemcore_dep,
     threads_dep,
     unittest_dep,
+    unittest_pmem2_dep,
 ]
 
 c_args = []
@@ -18,7 +19,6 @@ c_args = []
 include_directories = [
     include_directories('../../libpmem2'),
     common_include,
-    miniasync_include,
 ]
 
 executable(

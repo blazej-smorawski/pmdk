@@ -11,9 +11,7 @@ dependencies = [
 
 c_args = []
 link_args = []
-include_directories = [
-    miniasync_include,
-]
+include_directories = []
 
 executable(
     t,

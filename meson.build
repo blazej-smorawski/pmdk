@@ -56,9 +56,28 @@ libncurses_dep = dependency('ncurses', required: false)
 libuv_dep = dependency('libuv', required: false)
 libfuse_dep = dependency('fuse', version: '>= 2.9.1', required: false)
 
+opt_var = cmake.subproject_options()
+opt_var.add_cmake_defines({'BUILD_DOC': false})
+opt_var.add_cmake_defines({'BUILD_EXAMPLES': false})
+opt_var.add_cmake_defines({'BUILD_TESTS': false})
 miniasync_proj = cmake.subproject('miniasync')
 miniasync_dep = miniasync_proj.dependency('miniasync')
-miniasync_include = include_directories('subprojects/miniasync/src/include')
+
+# Necessary due to a bug in cmake module that propagates
+# PRIVATE target_link_args into link args, so flags
+# such as /DEF would be added to targets depending
+# on the miniasync_dep
+miniasync_dep = miniasync_dep.partial_dependency( 
+    compile_args : true,
+    includes     : false,
+    link_args    : false,
+    links        : true,
+    sources      : false,
+)
+miniasync_dep = declare_dependency(
+    include_directories: include_directories('subprojects/miniasync/src/include'),
+    dependencies: [miniasync_dep],
+)
 
 if libndctl_dep.found()
     add_project_arguments(
