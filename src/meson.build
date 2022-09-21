@@ -1,12 +1,23 @@
 root_include = include_directories('include')
 common_include = include_directories('common')
 core_include = include_directories('core')
+windows_cpp_args = [] # Args for examples that are compiled as C++ on windows
 
 # The include is added to each source file compiled on windows
 if host_machine.system() == 'windows'
     add_project_arguments('-FI@0@\src\windows\include\platform.h'.format(meson.project_source_root()), language : 'c')
     add_project_arguments('-DPMDK_UTF8_API', language: 'c')
+    add_project_link_arguments(
+        ['shlwapi.lib', 'ntdll.lib', 'mincore.lib', 
+        'kernel32.lib', 'user32.lib', 'gdi32.lib', 'winspool.lib', 
+        'comdlg32.lib', 'advapi32.lib', 'shell32.lib', 'ole32.lib', 
+        'oleaut32.lib', 'uuid.lib', 'odbc32.lib', 'odbccp32.lib']
+        , language: 'c'
+        )
     windows_include = include_directories('windows/include')
+    if host_machine.system() == 'windows'
+        windows_cpp_args += '-TP'
+    endif
 else
     windows_include = ''
 endif

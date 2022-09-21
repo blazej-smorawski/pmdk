@@ -3,17 +3,12 @@ include_directories = [
     include_directories('.'),
 ]
 
-cpp_args = [] # Args for examples that are compiled as C++ on windows
-if host_machine.system() == 'windows'
-    cpp_args += '-TP'
-endif
-
 executable(
     'btree',
     'btree.c',
     dependencies: [libpmemobj_dep],
     include_directories: include_directories,
-    c_args: cpp_args,
+    c_args: windows_cpp_args,
 )
 
 executable(
@@ -21,7 +16,7 @@ executable(
     'buffons_needle_problem.c',
     dependencies: [libpmemobj_dep, libm_dep],
     include_directories: include_directories,
-    c_args: cpp_args,
+    c_args: windows_cpp_args,
 )
 
 executable(
@@ -29,7 +24,7 @@ executable(
     'lists.c',
     dependencies: [libpmemobj_dep],
     include_directories: include_directories,
-    c_args: cpp_args,
+    c_args: windows_cpp_args,
 )
 
 executable(
@@ -44,7 +39,7 @@ executable(
     'pi.c',
     dependencies: [libpmemobj_dep, libm_dep, threads_dep],
     include_directories: include_directories,
-    c_args: cpp_args,
+    c_args: windows_cpp_args,
 )
 
 subdir('hashmap')

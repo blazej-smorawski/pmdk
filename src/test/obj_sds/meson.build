@@ -8,7 +8,9 @@ dependencies = [
     unittest_dep,
 ]
 
-c_args = []
+c_args = [
+    windows_cpp_args,
+]
 link_args = []
 include_directories = []
 

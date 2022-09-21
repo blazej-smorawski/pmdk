@@ -3,5 +3,5 @@ executable(
     'obj_pmemblk.c',
     dependencies: [libpmemobj_dep, libpmem_dep, threads_dep],
     include_directories: include_directories,
-    c_args: cpp_args,
+    c_args: windows_cpp_args,
 )

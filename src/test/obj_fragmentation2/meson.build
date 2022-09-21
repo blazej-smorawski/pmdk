@@ -9,7 +9,9 @@ dependencies = [
     unittest_dep,
 ]
 
-c_args = []
+c_args = [
+    windows_cpp_args,
+]
 include_directories = []
 
 executable(

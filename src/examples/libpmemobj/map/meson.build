@@ -4,7 +4,7 @@ libmap_ctree = static_library(
     dependencies: [libctree_map_dep, libpmemobj_dep, threads_dep],
     include_directories: include_directories('.'),
     install: false,
-    c_args: cpp_args,
+    c_args: windows_cpp_args,
 )
 
 libmap_ctree_dep = declare_dependency(
@@ -39,7 +39,7 @@ libmap = static_library(
     ],
     include_directories: include_directories,
     install: false,
-    c_args: cpp_args,
+    c_args: windows_cpp_args,
 )
 
 libmap_dep = declare_dependency(
@@ -52,6 +52,7 @@ mapcli = executable(
     'mapcli.c',
     dependencies: [libpmemobj_dep, threads_dep, libmap_dep],
     include_directories: include_directories,
+    c_args: windows_cpp_args,
 )
 
 data_store = executable(
@@ -59,14 +60,15 @@ data_store = executable(
     'data_store.c',
     dependencies: [libpmemobj_dep, threads_dep, libmap_dep],
     include_directories: include_directories,
+    c_args: windows_cpp_args,
 )
 
 if libuv_dep.found()
     kv_server = executable(
         'kv_server',
-	'kv_server.c',
-	dependencies: [libpmemobj_dep, threads_dep, libmap_dep, libuv_dep],
-	include_directories: include_directories('.'),
+	    'kv_server.c',
+	    dependencies: [libpmemobj_dep, threads_dep, libmap_dep, libuv_dep],
+	    include_directories: include_directories('.'),
     )
 else
     message('''Skipping kv_server because libuv library is missing.
