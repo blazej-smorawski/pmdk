@@ -27,7 +27,6 @@ if host_machine.system() == 'linux'
     link_args += '-Wl,--version-script=@0@'.format(meson.current_source_dir() / 'libpmemobj.link.in')
 elif host_machine.system() == 'windows'
     link_args += '-DEF:@0@'.format(meson.current_source_dir() / 'libpmemobj.def')
-    link_args += ['shlwapi.lib', 'ntdll.lib', 'mincore.lib', 'kernel32.lib', 'user32.lib', 'gdi32.lib', 'winspool.lib', 'comdlg32.lib', 'advapi32.lib', 'shell32.lib', 'ole32.lib', 'oleaut32.lib', 'uuid.lib', 'odbc32.lib', 'odbccp32.lib']
 endif
 
 dependencies = [
@@ -76,7 +75,7 @@ libpmemobj_internal_dep = declare_dependency(
     dependencies: [
         libdaxctl_dep,
         libndctl_dep,
-	#    libdl_dep,
+	    libdl_dep,
 	    libpmem_dep,
         pmemcommon_dep,
         pmemcore_dep,

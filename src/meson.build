@@ -15,11 +15,13 @@ if host_machine.system() == 'windows'
         , language: 'c'
         )
     windows_include = include_directories('windows/include')
+    windows_getopt_include = include_directories('windows/getopt')
     if host_machine.system() == 'windows'
-        windows_cpp_args += '-TP'
+        windows_cpp_args += ['-std:c++14', '-TP']
     endif
 else
     windows_include = ''
+    windows_getopt_include = ''
 endif
 
 subdir('core')
@@ -32,10 +34,8 @@ subdir('libpmemobj')
 subdir('libpmempool')
 subdir('libpmemset')
 subdir('examples')
+subdir('windows') # Provides getop_dep for tests
 
-if host_machine.system() == 'windows'
-    subdir('windows')
-endif
 
 if get_option('rpmem')
     #subdir('librpmem')
