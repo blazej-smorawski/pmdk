@@ -51,6 +51,10 @@ libpmemblk_internal_dep = declare_dependency(
     ],
 )
 
+if host_machine.system() == 'windows'
+    libpmemblk_internal_dep = libpmemblk_dep
+endif
+
 if meson.version().version_compare('>=0.54')
     meson.override_dependency('libpmemblk', libpmemblk_dep)
 endif

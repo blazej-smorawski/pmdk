@@ -88,6 +88,17 @@ libpmemobj_internal_dep = declare_dependency(
     ],
 )
 
+if host_machine.system() == 'windows'
+    libpmemobj_internal_dep = declare_dependency(
+        dependencies: [
+            libpmemobj_dep
+        ],
+        include_directories: [
+            include_directories('.'),
+        ]
+    )
+endif
+
 if meson.version().version_compare('>=0.54')
-    meson.override_dependency('libpmemobj', libpmemblk_dep)
+    meson.override_dependency('libpmemobj', libpmemobj_dep)
 endif

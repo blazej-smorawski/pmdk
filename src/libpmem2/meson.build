@@ -225,6 +225,10 @@ libpmem2_internal_dep = declare_dependency(
     ],
 )
 
+if host_machine.system() == 'windows'
+    libpmem2_internal_dep = libpmem2_dep
+endif
+
 if meson.version().version_compare('>=0.54')
     meson.override_dependency('libpmem2', libpmem2_dep)
 endif

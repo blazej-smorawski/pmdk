@@ -67,6 +67,10 @@ libpmemset_internal_dep = declare_dependency(
     ],
 )
 
+if host_machine.system() == 'windows'
+    libpmemset_internal_dep = libpmemset_dep
+endif
+
 if meson.version().version_compare('>=0.54')
     meson.override_dependency('libpmemset', libpmemset_dep)
 endif
