@@ -6,6 +6,7 @@ dependencies = [
     libpmempool_dep,
     unittest_dep,
     pmemcommon_dep,
+    getopt_dep,
 ]
 
 c_args = []

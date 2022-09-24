@@ -1,22 +1,32 @@
 ttools = {
-    'anonymous_mmap': {},
     'bttcreate': {},
     'cmpmap': {},
     'cpufd': {},
-    'ctrld': {},
     'ddmap': {},
-    'extents': {},
-    'fallocate_detect': {},
     'gran_detecto': {},
-    'mapexec': {},
-    'obj_verify': {},
     'pmemalloc': {},
     'pmemdetect': {},
     'pmemobjcli': {},
     'pmemspoil': {},
     'pmemwrite': {},
-    'usc_permission_check': {},
 }
+
+if host_machine.system() != 'windows'
+    ttools += {
+        'anonymous_mmap': {},
+        'ctrld': {},
+        'extents': {},
+        'fallocate_detect': {},
+        'mapexec': {},
+        'obj_verify': {},
+        'usc_permission_check': {},
+    }
+else
+    ttools += {
+        'dllview': {},
+        'sparsefile': {},
+    }
+endif
 
 # This dependency is quite rough, but that's the way
 # it was in src/tools/Makefile.inc

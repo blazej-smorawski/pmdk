@@ -15,7 +15,9 @@ tests = {
     'checksum': {},
     'compat_incompat_features': {},
     'ctl_cow': {},
-    'ctl_prefault': {},
+    'ctl_prefault': {
+        'properties': [ 'unix_only' ],
+    },
     'daxio': {},
     'ex_libpmem': {},
     'ex_libpmem2': {},
@@ -75,7 +77,9 @@ tests = {
     'obj_basic_integration': {},
     'obj_bucket': {},
     'obj_check': {},
-    'obj_check_remote': {},
+    'obj_check_remote': {
+        'properties': [ 'unix_only' ],
+    },
     'obj_constructor': {},
     'obj_critnib': {},
     'obj_critnib_mt': {},
@@ -133,7 +137,9 @@ tests = {
     'obj_pmalloc_mt': {},
     'obj_pmalloc_oom_mt': {},
     'obj_pmalloc_rand_mt': {},
-    'obj_pmemcheck': {},
+    'obj_pmemcheck': {
+        'properties': [ 'unix_only' ],
+    },
     'obj_pool': {},
     'obj_pool_lock': {},
     'obj_pool_lookup': {},
@@ -144,7 +150,9 @@ tests = {
     'obj_realloc': {},
     'obj_recovery': {},
     'obj_recreate': {},
-    'obj_reorder_basic': {},
+    'obj_reorder_basic': {
+        'properties': [ 'unix_only' ],
+    },
     'obj_root': {},
     'obj_rpmem_basic_integration': {
         'test_deps': [ 'obj_basic_integration' ],
@@ -337,11 +345,6 @@ tests = {
     },
 }
 
-if host_machine.system() == 'windows'
-
-else
-    tests += 
-endif
 unittest_sources = files(
     '../../testsuite/unittest/ut_alloc.c',
     '../../testsuite/unittest/ut_backtrace.c',
@@ -352,27 +355,48 @@ unittest_sources = files(
     '../../testsuite/unittest/ut.c',
 )
 
-unittest_lib = library(
+c_args = []
+link_args = []
+if host_machine.system() == 'windows'
+    c_args = ['-TC', '-DNTDDI_VERSION=NTDDI_WIN10_RS1', '-D_DEBUG', '-D_CONSOLE']
+    windows_mock_forced_include = '-FImocks_windows.h'
+    if get_option('buildtype') == 'debug'
+        c_args += '-MDd'
+    elif get_option('buildtype') == 'release'
+        c_args += '-MD'
+    endif
+    link_args += 'dbghelp.lib'
+else
+    windows_mock_forced_include = 
+endif
+
+unittest_lib = static_library(
     'unittest',
     unittest_sources,
+    link_args: link_args,
+    c_args: c_args,
     dependencies: [
+        libpmem_dep,
         pmemcore_dep,
     ],
     include_directories: [
         include_directories('../../testsuite/unittest'),
         root_include,
         core_include,
+        windows_include,
     ],
     install: false,
 )
 
 unittest_dep = declare_dependency(
     link_with: unittest_lib,
+    link_args: link_args,
     include_directories: [
         include_directories('../../testsuite/unittest'),
         core_include,
         common_include,
         root_include,
+        windows_include,
     ]
 )
 
@@ -386,25 +410,66 @@ unittest_pmem2_sources = files(
     '../libpmem2/config.c',
     '../libpmem2/errormsg.c',
     '../libpmem2/map.c',
-    '../libpmem2/map_posix.c',
     '../libpmem2/memops_generic.c',
     '../libpmem2/mover.c',
     '../libpmem2/persist.c',
-    '../libpmem2/persist_posix.c',
     '../libpmem2/pmem2_utils.c',
-    '../libpmem2/pmem2_utils_linux.c',
-    '../libpmem2/pmem2_utils_ndctl.c',
     '../libpmem2/source.c',
-    '../libpmem2/source_posix.c',
     '../libpmem2/vm_reservation.c',
-    '../libpmem2/vm_reservation_posix.c',
-    '../libpmem2/auto_flush_linux.c',
-    '../libpmem2/deep_flush_linux.c',
-    '../libpmem2/extent_linux.c',
-    '../libpmem2/region_namespace_ndctl.c',
 )
 
-unittest_pmem2_lib = library(
+if host_machine.system() == 'windows'
+    unittest_pmem2_sources += [
+        '../libpmem2/map_windows.c',
+        '../libpmem2/persist_windows.c',
+        '../libpmem2/source_windows.c',
+        '../libpmem2/vm_reservation_windows.c',
+        '../libpmem2/auto_flush_windows.c',
+        '../libpmem2/deep_flush_windows.c',
+    ]
+else
+    unittest_pmem2_sources += [
+        '../libpmem2/map_posix.c',
+        '../libpmem2/source_posix.c',
+        '../libpmem2/persist_posix.c',
+        '../libpmem2/vm_reservation_posix.c',
+    ]
+
+    if host_machine.system() == 'linux'
+        unittest_pmem2_sources += [
+            '../libpmem2/auto_flush_linux.c',
+            '../libpmem2/deep_flush_linux.c',
+            '../libpmem2/pmem2_utils_linux.c',
+            '../libpmem2/extent_linux.c',
+        ]
+        if libndctl_dep.found()
+            unittest_pmem2_sources += '../libpmem2/pmem2_utils_ndctl.c'
+        else
+            unittest_pmem2_sources += '../libpmem2/pmem2_utils_none.c'
+        endif
+    else
+        unittest_pmem2_sources += [
+            '../libpmem2/pmem2_utils_other.c',
+            '../libpmem2/auto_flush_none.c',
+            '../libpmem2/deep_flush_none.c',
+            '../libpmem2/extent_none.c',
+        ]
+    endif
+endif
+
+if libndctl_dep.found()
+    unittest_pmem2_sources += [
+        '../libpmem2/region_namespace_ndctl.c',
+        '../libpmem2/numa_ndctl.c',
+    ]
+else
+    unittest_pmem2_sources += [
+        '../libpmem2/region_namespace_none.c',
+        '../libpmem2/numa_none.c',
+    ]
+endif
+
+unittest_pmem2_lib = static_library(
     'unittest_pmem2',
     unittest_pmem2_sources,
     c_args: [

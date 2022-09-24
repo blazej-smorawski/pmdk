@@ -9,7 +9,9 @@ dependencies = [
 ]
 
 c_args = []
-include_directories = []
+include_directories = [
+    windows_getopt_include,
+]
 
 executable(
     t,

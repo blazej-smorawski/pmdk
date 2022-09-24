@@ -6,10 +6,9 @@ dependencies = [
     libpmemobj_dep,
     unittest_dep,
 ]
-
-c_args = [
-    windows_cpp_args,
-]
+# TODO: Check if it should be used because it's not in 
+# Visual Studio solution
+c_args = []
 include_directories = []
 
 executable(

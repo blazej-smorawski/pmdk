@@ -6,10 +6,13 @@ dependencies = [
     libpmemobj_dep,
     libpmempool_dep,
     unittest_dep,
+    getopt_dep,
 ]
 
 c_args = []
-include_directories = []
+include_directories = [
+    windows_getopt_include,
+]
 
 executable(
     t,

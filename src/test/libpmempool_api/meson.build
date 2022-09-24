@@ -5,10 +5,13 @@ sources = files(
 dependencies = [
     libpmempool_dep,
     unittest_dep,
+    getopt_dep,
 ]
 
 c_args = []
-include_directories = []
+include_directories = [
+    windows_getopt_include,
+]
 
 executable(
     'libpmempool_test',

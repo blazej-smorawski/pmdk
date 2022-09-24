@@ -2,9 +2,20 @@ subdir('tools')
 
 # Setup envconfig files
 write_file = find_program('../utils/write-file.py')
-libfabric_libdir = libfabric_dep.get_variable('libdir')
-libfabric_exec_prefix = libfabric_dep.get_variable('exec_prefix')
-libndctl_libdir = libndctl_dep.get_variable('libdir')
+
+if libfabric_dep.found()
+    libfabric_libdir = libfabric_dep.get_variable('libdir')
+    libfabric_exec_prefix = libfabric_dep.get_variable('exec_prefix')
+else
+    libfabric_libdir = ''
+    libfabric_exec_prefix = ''
+endif
+
+if libndctl_dep.found()
+    libndctl_libdir = libndctl_dep.get_variable('libdir')
+else
+    libndctl_libdir = ''
+endif
 
 # Create PKG_CONFIG_PATH variable in appropriate format
 pkg_config_path_list = get_option('pkg_config_path')
@@ -20,12 +31,12 @@ envconfig_sh_content = f'GLOBAL_LIB_PATH=@libfabric_libdir@:@libndctl_libdir@ GL
 
 # Debug was introduced in meson 0.63
 if meson.version().version_compare('>=0.63')
-debug('pkg_config_path_list:')
-debug(pkg_config_path_list)
-debug('pkg_config_path_str:')
-debug(pkg_config_path_str)
-debug('envconfig_sh_content:')
-debug(envconfig_sh_content)
+    debug('pkg_config_path_list:')
+    debug(pkg_config_path_list)
+    debug('pkg_config_path_str:')
+    debug(pkg_config_path_str)
+    debug('envconfig_sh_content:')
+    debug(envconfig_sh_content)
 endif
 
 envconfig_sh = run_command(
@@ -45,10 +56,10 @@ envconfig_sh = run_command(
 # Setup run-tests target
 run_tests_python = find_program('RUNTESTS.py')
 run_tests_bash = find_program('RUNTESTS')
-run_tests_powershell = find_program('RUNTESTS.PS1')
+run_tests_powershell = find_program('powershell')
 run_tests_python_args = []
 run_tests_bash_args = []
-run_tests_powershell_args = []
+run_tests_powershell_args = ['RUNTESTS.PS1']
 run_tests_env = {}
 run_tests_python_env = {}
 run_tests_bash_env = {}
@@ -175,10 +186,23 @@ else
 endif
 
 # Create targets specific for each framework
-debug('run-tests-python args:')
-debug(run_tests_python_args)
-debug('run-tests-python env:')
-debug(run_tests_python_env)
+if meson.version().version_compare('>=0.63')
+    debug('run-tests-python args:')
+    debug(run_tests_python_args)
+    debug('run-tests-python env:')
+    debug(run_tests_python_env)
+
+    debug('run-tests-bash args:')
+    debug(run_tests_bash_args)
+    debug('run-tests-bash env:')
+    debug(run_tests_bash_env)
+
+    debug('run-tests-powershell args:')
+    debug(run_tests_powershell_args)
+    debug('run-tests-powershell env:')
+    debug(run_tests_powershell_env)
+endif
+
 run_tests_python_target = run_target(
     'run-tests-python',
     command:[run_tests_python]+run_tests_python_args,
@@ -186,10 +210,6 @@ run_tests_python_target = run_target(
     depends:copy_targets,
 )
 
-debug('run-tests-bash args:')
-debug(run_tests_bash_args)
-debug('run-tests-bash env:')
-debug(run_tests_bash_env)
 run_tests_bash_target = run_target(
     'run-tests-bash',
     command:[run_tests_bash]+run_tests_bash_args,
@@ -197,10 +217,6 @@ run_tests_bash_target = run_target(
     depends:copy_targets,
 )
 
-debug('run-tests-powershell args:')
-debug(run_tests_powershell_args)
-debug('run-tests-powershell env:')
-debug(run_tests_powershell_env)
 run_tests_powershell_target = run_target(
     'run-tests-powershell',
     command:[run_tests_powershell]+run_tests_powershell_args,

@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 c_args = [
-    windows_cpp_args,
+    windows_mock_forced_include,
 ]
 link_args = []
 include_directories = [
