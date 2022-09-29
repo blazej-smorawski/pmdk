@@ -3,14 +3,16 @@ sources = files(
 )
 
 dependencies = [
-    libpmemobj_internal_dep,
+    libpmemobj_dep,
     unittest_dep,
 ]
 
 c_args = [
     windows_cpp_args,
 ]
-include_directories = []
+include_directories = [
+    libpmemobj_internal_include,
+]
 
 executable(
     t,

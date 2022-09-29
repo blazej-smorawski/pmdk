@@ -1,7 +1,42 @@
+ # The file has to be compiled as C++ on windows, so
+ # it has to be a separate static lib for the purpose
+obj_list_object = static_library(
+    'obj_list_object',
+    ['obj_list.c'],
+    dependencies: [
+        libpmem_dep,
+        unittest_dep,
+    ],
+    include_directories: [
+	    libpmemobj_internal_include,
+    ],
+    c_args: [
+        windows_mock_forced_include,
+        windows_cpp_args,
+    ],
+    install: false,
+)
+
+libpmemobj_lane_object = static_library(
+    'obj_list_object',
+    ['obj_list.c'],
+    dependencies: [
+        libpmem_dep,
+        unittest_dep,
+    ],
+    include_directories: [
+	    libpmemobj_internal_include,
+    ],
+    c_args: [
+        windows_mock_forced_include,
+        windows_cpp_args,
+    ],
+    install: false,
+)
+
 sources = files(
     'obj_list_mocks_palloc.c',
     'obj_list_mocks.c',
-    'obj_list.c',
 )
 
 dependencies = [
@@ -11,7 +46,7 @@ dependencies = [
 ]
 
 c_args = [
-    windows_cpp_args,
+    windows_mock_forced_include,
 ]
 link_args = []
 include_directories = []
@@ -39,4 +74,5 @@ executable(
     link_args: link_args,
     include_directories: include_directories,
     dependencies: dependencies,
+    objects: obj_list_object.extract_objects('obj_list.c')
 )

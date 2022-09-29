@@ -66,10 +66,11 @@ libpmemobj_dep = declare_dependency(
     ],
 )
 
+libpmemobj_internal_include = include_directories('.')
+
 libpmemobj_internal_dep = declare_dependency(
     sources: sources,
-    compile_args: [
-        '-DUSE_LIBDL',
+    compile_args: c_args + [
         '-D_PMEMOBJ_INTRNL',
     ],
     dependencies: [
@@ -82,20 +83,20 @@ libpmemobj_internal_dep = declare_dependency(
         threads_dep,
     ],
     include_directories: [
-        include_directories('.'),
+        libpmemobj_internal_include,
         root_include,
     ],
 )
 
 if host_machine.system() == 'windows'
-    libpmemobj_internal_dep = declare_dependency(
-        dependencies: [
-            libpmemobj_dep
-        ],
-        include_directories: [
-            include_directories('.'),
-        ]
-    )
+    # libpmemobj_internal_dep = declare_dependency(
+    #     dependencies: [
+    #         libpmemobj_dep
+    #     ],
+    #     include_directories: [
+    #         include_directories('.'),
+    #     ]
+    # )
 endif
 
 if meson.version().version_compare('>=0.54')
