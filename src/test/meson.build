@@ -359,7 +359,6 @@ c_args = []
 link_args = []
 if host_machine.system() == 'windows'
     c_args = ['-TC', '-DNTDDI_VERSION=NTDDI_WIN10_RS1', '-D_DEBUG', '-D_CONSOLE']
-    windows_mock_forced_include = '-FImocks_windows.h'
     if get_option('buildtype') == 'debug'
         c_args += '-MDd'
     elif get_option('buildtype') == 'release'
@@ -367,7 +366,7 @@ if host_machine.system() == 'windows'
     endif
     link_args += 'dbghelp.lib'
 else
-    windows_mock_forced_include = 
+    
 endif
 
 unittest_lib = static_library(

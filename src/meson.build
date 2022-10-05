@@ -16,12 +16,15 @@ if host_machine.system() == 'windows'
         )
     windows_include = include_directories('windows/include')
     windows_getopt_include = include_directories('windows/getopt')
+    windows_mocks_forced_include = '-FImocks_windows.h'
+
     if host_machine.system() == 'windows'
         windows_cpp_args += ['-std:c++14', '-TP']
     endif
 else
     windows_include = ''
     windows_getopt_include = ''
+    windows_mocks_forced_include = ''
 endif
 
 subdir('core')

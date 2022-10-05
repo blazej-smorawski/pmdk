@@ -29,31 +29,29 @@ elif host_machine.system() == 'windows'
     link_args += '-DEF:@0@'.format(meson.current_source_dir() / 'libpmemobj.def')
 endif
 
-dependencies = [
+# Used to build libpmemobj_internal_mocked lib in tests
+libpmemobj_dependencies = [
         libdaxctl_dep,
         libndctl_dep,
+        libdl_dep,
 	    libpmem_dep,
         pmemcommon_dep,
         pmemcore_dep,
         threads_dep,
     ]
-    
-if host_machine.system() == 'linux' and libdl_dep.found()
-    dependencies += libdl_dep
-endif
 
-c_args = []
+libpmemobj_c_args = []
 
 if host_machine.system() == 'linux' and libdl_dep.found()
-    c_args += '-DUSE_LIBDL'
+    libpmemobj_c_args += '-DUSE_LIBDL'
 endif
 
 libpmemobj = library(
     'pmemobj',
     sources,
-    c_args: c_args,
+    c_args: libpmemobj_c_args,
     link_args: link_args,
-    dependencies: dependencies,
+    dependencies: libpmemobj_dependencies,
     include_directories: root_include,
     name_prefix: 'lib',
     install: true
@@ -70,7 +68,7 @@ libpmemobj_internal_include = include_directories('.')
 
 libpmemobj_internal_dep = declare_dependency(
     sources: sources,
-    compile_args: c_args + [
+    compile_args: libpmemobj_c_args + [
         '-D_PMEMOBJ_INTRNL',
     ],
     dependencies: [
