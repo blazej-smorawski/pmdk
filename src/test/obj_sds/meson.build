@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 c_args = [
-    windows_mock_forced_include,
+    windows_mocks_forced_include,
 ]
 link_args = []
 include_directories = []
