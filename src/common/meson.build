@@ -111,3 +111,10 @@ pmemcommon_dep = declare_dependency(
         include_directories
     ],
 )
+
+pmemcommon_internal_dep = declare_dependency(
+    sources: sources,
+    include_directories: [
+        include_directories
+    ],
+)

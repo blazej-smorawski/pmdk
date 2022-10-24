@@ -193,7 +193,9 @@ tests = {
     },
     'pmem_deep_persist': {},
     'pmem_eADR_functions': {},
-    'pmem_has_auto_flush': {},
+    'pmem_has_auto_flush': {
+        'properties': [ 'unix_only' ],
+    },
     'pmem_has_auto_flush_win': {
         'properties': [ 'windows_only' ],
     },
@@ -549,6 +551,18 @@ get_mocks = find_program('../../utils/get-mocks.py')
 copy_targets = []
 list_files = find_program('../../utils/list-files.py')
 test_files_regex = '(.*TEST[0-9]+([.]PS1)?$)|(.*TESTS.py$)|(.*[.]match$)|(common.sh)|(asset_list.txt)|(alloc_class_config)|(pool.set)'
+
+executable(
+    'arch_flags_test',
+    'arch_flags/arch_flags.c',
+    c_args: [],
+    include_directories: [],
+    dependencies: [ libpmem_dep,
+        pmemcore_dep,
+        pmemcommon_dep,
+        unittest_dep],
+    install_dir: 'arch_flags_test',
+)
 
 foreach t, attrs : filtered_tests
     test_deps = attrs.get('test_deps', [])

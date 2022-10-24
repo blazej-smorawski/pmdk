@@ -1,6 +1,6 @@
 sources = files()
 compile_args = []
-includes = [include_directories('.')]
+libpmem2_arch_include = [include_directories('.')]
 
 if host_machine.cpu_family() == 'aarch64'
     sources += files('aarch64/init.c')
@@ -91,19 +91,19 @@ elif host_machine.cpu_family() == 'x86_64'
         pmem2_use_movdir64b = 0
     endif
 
-    includes += include_directories('x86_64/memcpy', 'x86_64/memset')
+    libpmem2_arch_include += include_directories('x86_64/memcpy', 'x86_64/memset')
 
     compile_args += avx_args
 else
     error('pmdk does not support @0@'.format(host_machine.cpu_family()))
 endif
 
-includes += include_directories(host_machine.cpu_family())
+libpmem2_arch_include += include_directories(host_machine.cpu_family())
 
 pmem2arch_dep = declare_dependency(
     compile_args: compile_args,
     sources: sources,
-    include_directories: includes
+    include_directories: libpmem2_arch_include
 )
 
 sources = files(
@@ -176,6 +176,12 @@ elif host_machine.system() == 'windows'
     link_args += '-DEF:@0@'.format(meson.current_source_dir() / 'libpmem2.def')
 endif
 
+libpmem2_include = [
+    include_directories('.'),
+    root_include,
+    common_include,
+]
+
 libpmem2 = library(
     'pmem2',
     sources,
@@ -218,9 +224,7 @@ libpmem2_internal_dep = declare_dependency(
         miniasync_dep,
     ],
     include_directories: [
-        include_directories('.'),
-        root_include,
-        common_include,
+        libpmem2_include,
     ],
 )
 

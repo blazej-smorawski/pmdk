@@ -1,4 +1,6 @@
-sources = files(
+# We use names such as libpmemobj_* because those variables
+# are used later on in tests requiring internal files
+libpmemobj_sources = files(
     'alloc_class.c',
     'bucket.c',
     'container_ravl.c',
@@ -48,7 +50,7 @@ endif
 
 libpmemobj = library(
     'pmemobj',
-    sources,
+    libpmemobj_sources,
     c_args: libpmemobj_c_args,
     link_args: link_args,
     dependencies: libpmemobj_dependencies,
@@ -67,7 +69,7 @@ libpmemobj_dep = declare_dependency(
 libpmemobj_internal_include = include_directories('.')
 
 libpmemobj_internal_dep = declare_dependency(
-    sources: sources,
+    sources: libpmemobj_sources,
     compile_args: libpmemobj_c_args + [
         '-D_PMEMOBJ_INTRNL',
     ],

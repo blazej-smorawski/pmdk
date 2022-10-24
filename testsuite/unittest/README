@@ -1,6 +1,6 @@
 Persistent Memory Development Kit
 
-This is src/test/unittest/README.
+This is testsuite/unittest/README.
 
 This directory contains the unit test framework used by
 the Persistent Memory Development Kit unit tests.

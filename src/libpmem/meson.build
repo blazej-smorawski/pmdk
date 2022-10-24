@@ -14,6 +14,11 @@ elif host_machine.system() == 'windows'
     sources += ['pmem_windows.c', '../windows/win_mmap.c']
 endif
 
+libpmem_include = [
+    include_directories('.'),
+    root_include,
+]
+
 libpmem = library(
     'pmem',
     sources,
@@ -22,7 +27,7 @@ libpmem = library(
         libndctl_dep,
         libdaxctl_dep,
         pmemcommon_dep,
-        pmemcore_dep,
+        pmemcore_dep, # pmemcore is included in pmemcommon_dep
         pmem2arch_dep,
     ],
     include_directories: [
@@ -47,13 +52,12 @@ libpmem_internal_dep = declare_dependency(
         pmem2arch_dep,
     ],
     include_directories: [
-        include_directories('.'),
-        root_include,
+        libpmem_include,
     ]
 )
 
 if host_machine.system() == 'windows'
-    libpmem_internal_dep = libpmem_dep
+    #libpmem_internal_dep = libpmem_dep
 endif
 
 if meson.version().version_compare('>=0.54')

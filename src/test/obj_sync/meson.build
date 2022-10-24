@@ -1,48 +1,95 @@
-sources = files(
-    'obj_sync.c',
-    '../../libpmemobj/sync.c',
-)
+if host_machine.system() != 'windows'
+    sources = files(
+        'obj_sync.c',
+        '../../libpmemobj/sync.c',
+        'mocks_posix.c',
+    )
 
-if host_machine.system() == 'windows'
-    sources += files('mocks_windows.c')
-else
-    sources += files('mocks_posix.c')
-endif
+    dependencies = [
+        pmemcommon_dep,
+        unittest_dep,
+    ]
 
-dependencies = [
-    pmemcommon_dep,
-    unittest_dep,
-]
+    c_args = [
+        windows_mocks_forced_include,
+    ]
+    link_args = []
+    include_directories = [
+        include_directories('../../libpmemobj'),
+    ]
 
-c_args = [
-    windows_mocks_forced_include,
-]
-link_args = []
-include_directories = [
-    include_directories('../../libpmemobj'),
-]
+    # scan test source files for mock functions
+    ret = run_command(
+            get_mocks,
+            sources,
+            check: true,
+    )
 
-# scan test source files for mock functions
-ret = run_command(
-        get_mocks,
+    mock_funcs = ret.stdout().strip().split('\n')
+    if mock_funcs.length() != 0
+        wrap_arg_str = '-Wl'
+        foreach mock : mock_funcs
+            wrap_arg_str += f',--wrap=@mock@'
+        endforeach
+        link_args += [wrap_arg_str]
+    endif
+
+    executable(
+        t,
         sources,
-        check: true,
-)
+        c_args: c_args,
+        link_args: link_args,
+        include_directories: include_directories,
+        dependencies: dependencies,
+    )
+else
+    dependencies = [
+        pmemcommon_dep,
+        unittest_dep,
+    ]
 
-mock_funcs = ret.stdout().strip().split('\n')
-if mock_funcs.length() != 0
-    wrap_arg_str = '-Wl'
-    foreach mock : mock_funcs
-        wrap_arg_str += f',--wrap=@mock@'
-    endforeach
-    link_args += [wrap_arg_str]
+    mocks_windows_object = static_library(
+        'mocks_windows_object',
+        ['mocks_windows.c'],
+        dependencies: dependencies,
+        include_directories: [
+            root_include,
+        ],
+        c_args: [
+            windows_mocks_forced_include,
+            '-DWRAP_REAL'
+        ],
+        install: false,
+    )
+
+    sources = files(
+        'obj_sync.c',
+        '../../libpmemobj/sync.c',
+    )
+
+    c_args = [
+        windows_mocks_forced_include,
+    ]
+    link_args = []
+    include_directories = [
+        libpmemobj_internal_include,
+    ]
+
+    executable(
+        t,
+        sources,
+        c_args: c_args,
+        link_args: link_args,
+        include_directories: include_directories,
+        dependencies: dependencies,
+        objects: mocks_windows_object.extract_objects('mocks_windows.c')
+    )
 endif
 
-executable(
-    t,
-    sources,
-    c_args: c_args,
-    link_args: link_args,
-    include_directories: include_directories,
-    dependencies: dependencies,
+copy_target = custom_target(t+'(test-files)',
+    input : test_files,
+    output :  test_files,
+    command : [copy, '-i', '@INPUT@', '-o', '@OUTPUT@'],
+    install : false,
+    build_by_default : true
 )

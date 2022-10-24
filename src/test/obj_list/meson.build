@@ -89,6 +89,8 @@ libpmemobj_pmemobj_object = static_library(
     install: false,
 )
 
+# It should be refactored using something like
+# sources: libpmemobj_sources - specific files
 libpmemobj_internal_mocked = static_library(
     'pmemobj_mocked',
     [
@@ -106,9 +108,8 @@ libpmemobj_internal_mocked = static_library(
         '../../libpmemobj/sync.c',
         '../../libpmemobj/tx.c',
         '../../libpmemobj/stats.c',
-        '../../libpmemobj/ulog.c',
     ],
-    c_args: libpmemobj_c_args,
+    c_args: libpmemobj_c_args + windows_mocks_forced_include,
     dependencies: libpmemobj_dependencies,
     include_directories: [
         root_include,
@@ -134,7 +135,7 @@ obj_list_mocks_object = static_library(
     ['obj_list_mocks.c'],
     dependencies: libpmemobj_dependencies + unittest_dep,
     include_directories: [
-	    libpmemobj_internal_include,
+        libpmemobj_internal_include,
     ],
     c_args: [
         windows_mocks_forced_include,
@@ -208,3 +209,11 @@ executable(
         obj_list_mocks_palloc_object.extract_objects('obj_list_mocks_palloc.c'),
     ],
 )
+
+copy_target = custom_target(t+'(test-files)',
+        input : test_files,
+        output :  test_files,
+        command : [copy, '-i', '@INPUT@', '-o', '@OUTPUT@'],
+        install : false,
+        build_by_default : true
+    )
